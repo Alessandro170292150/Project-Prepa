@@ -26,12 +26,9 @@ let strassen (a : m) (b: m) : m  =
       b2.(i).(j) <- b.(i + (Array.length b)/2).(j);
       b3.(i).(j) <- b.(i).(j + (Array.length b)/2);
       b4.(i).(j) <- b.(i + (Array.length b)/2).(j + (Array.length b)/2);
-      c1.(i).(j) <- c.(i).(j);
-      c2.(i).(j) <- c.(i + (Array.length b)/2).(j);
-      c3.(i).(j) <- c.(i).(j + (Array.length b)/2);
-      c4.(i).(j) <- c.(i + (Array.length b)/2).(j + (Array.length b)/2);
     done;
   done;
+
 
   
 
