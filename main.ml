@@ -2,7 +2,13 @@ type m = int array array
 
 type m2 = int list array
 
-let strassen (a : m) (b: m) : m  = 
+let product (m1 : m) (m2 : m) = 
+let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
+for i = 0 to (Array.length m1) - 1 do
+for j = 0 to (Array.length m2) - 1 do
+
+
+let strassen (a : m) (b : m) : m  = 
   let c = Array.make_matrix (Array.length a) (Array.length b ) 0 in
   let a1 = Array.make_matrix (Array.make_matrix (Array.length a)/2 (Array.length a)/2 ) 0 in
   let a2 = Array.make_matrix (Array.make_matrix (Array.length a)/2 (Array.length a)/2 ) 0 in
@@ -28,6 +34,7 @@ let strassen (a : m) (b: m) : m  =
       b4.(i).(j) <- b.(i + (Array.length b)/2).(j + (Array.length b)/2);
     done;
   done;
+
 
 
   
