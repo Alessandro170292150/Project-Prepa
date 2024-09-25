@@ -2,10 +2,14 @@ type m = int array array
 
 type m2 = int list array
 
-(* let product (m1 : m) (m2 : m) = 
-let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
-for i = 0 to (Array.length m1) - 1 do
-for j = 0 to (Array.length m2) - 1 do *)
+let product (m1 : m) (m2 : m) : m = 
+    let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
+    for i = 0 to (Array.length m1) - 1 do
+      for j = 0 to (Array.length m2) - 1 do
+        for k = 0 to (Array.length c) - 1 do 
+
+
+
 
 
 let strassen (a : m) (b : m) : m  = 
