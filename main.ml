@@ -66,11 +66,26 @@ let print_m (a : m) : unit =
     Printf.printf "\n"
   done
 
+let print_m_s (a : m) : unit = 
+  for i = 0 to (Array.length a) - 1 do
+    for j = 0 to (Array.length a.(0)) - 1 do
+      Printf.printf " %d "  (a.(i).(j))
+    done;
+    Printf.printf "\n"
+  done
+
 let () = 
-  let m1 = [|[|1; 0|]; [|0; 1|]|] in
+  (* let m1 = [|[|1; 0|]; [|0; 1|]|] in
   let m2 = [|[|1; 0|]; [|0; 1|]|] in
-  let m3 = strassen m1 m2 in
-  print_m m3
+  let c1 = strassen m1 m2 in
+  print_m c1; *)
+  let m3 = Array.make_matrix 10 10 1 in
+  let m4 = Array.make_matrix 10 10 2 in
+  let c2 = strassen m3 m4 in
+  print_m_s c2
+  
+
+
   
 
 
