@@ -2,11 +2,18 @@ type m = int array array
 
 type m2 = int list array
 
-let product (m1 : m) (m2 : m) : m = 
+(* let product (m1 : m) (m2 : m) : m =
+  let z = ref 0 in
     let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
     for i = 0 to (Array.length m1) - 1 do
       for j = 0 to (Array.length m2) - 1 do
-        for k = 0 to (Array.length c) - 1 do 
+        for k = 0 to (Array.length m2) - 1 do
+          z := !z + m1.(i).(k)*m2.(k).(j)
+        done
+        c.(i).(j)<- !z
+        z := 0 *)
+
+
 
 
 
@@ -86,7 +93,7 @@ let () =
   let m3 = Array.make_matrix 10 10 1 in
   let m4 = Array.make_matrix 10 10 2 in
   let c2 = strassen m3 m4 in
-  print_m_s c2
+  print_m c2
   
 
 
