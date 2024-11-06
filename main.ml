@@ -36,8 +36,10 @@ let sous (m1 : m) (m2 : m) : m =
 
 
 
-let strassen (a : m) (b : m) : m  = 
-  let n = Array.length a in
+let rec strassen (a : m) (b : m) : m  = 
+  match (Array.length a) with
+  |1 -> product a b
+  |_ ->  let n = Array.length a in
   let c = Array.make_matrix (Array.length a) (Array.length b) 0 in
   let a1 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
   let a2 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
@@ -72,13 +74,13 @@ let strassen (a : m) (b : m) : m  =
   done;
   for i = 0 to (n/2 - 1) do
     for j = 0 to (n/2 - 1) do 
-      d1.(i).(j) <- (product (add a1 a4) (add b1 b4)).(i).(j);
-      d2.(i).(j) <- (product (add a2 a4) b1).(i).(j);
-      d3.(i).(j) <- (product a1 (sous b3 b4)).(i).(j);
-      d4.(i).(j) <- (product a4 (sous b2 b1)).(i).(j);
-      d5.(i).(j) <- (product (add a1 a3) b4).(i).(j);
-      d6.(i).(j) <- (product  (sous a2 a1) (add b1 b3)).(i).(j);
-      d7.(i).(j) <- (product (sous a3 a4) (add b2 b4)).(i).(j);
+      d1.(i).(j) <- (strassen (add a1 a4) (add b1 b4)).(i).(j);
+      d2.(i).(j) <- (strassen (add a2 a4) b1).(i).(j);
+      d3.(i).(j) <- (strassen a1 (sous b3 b4)).(i).(j);
+      d4.(i).(j) <- (strassen a4 (sous b2 b1)).(i).(j);
+      d5.(i).(j) <- (strassen (add a1 a3) b4).(i).(j);
+      d6.(i).(j) <- (strassen  (sous a2 a1) (add b1 b3)).(i).(j);
+      d7.(i).(j) <- (strassen (sous a3 a4) (add b2 b4)).(i).(j);
       c1.(i).(j) <- (sous (add (add d1 d4) d7) d5).(i).(j);
       c2.(i).(j) <- (add d3 d5).(i).(j);
       c3.(i).(j) <- (add d2 d4).(i).(j);
