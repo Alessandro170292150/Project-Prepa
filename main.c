@@ -7,7 +7,10 @@
 
 
 int** add (int** a, int** b, int n) {
-    int** c = malloc(n*n*sizeof(int));
+    int** c = malloc(n*sizeof(int*));
+    for (int i = 0; i < n; i++) {
+        c[i] = malloc(n*sizeof(int));
+    }
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             c[i][j] = a[i][j] + b[i][j];
@@ -17,7 +20,10 @@ int** add (int** a, int** b, int n) {
 }
 
 int** sous (int** a, int** b, int n) {
-    int** c = malloc(n*n*sizeof(int));
+    int** c = malloc(n*sizeof(int*));
+    for (int i = 0; i < n; i++) {
+        c[i] = malloc(n*sizeof(int));
+    }
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             c[i][j] = a[i][j] - b[i][j];
@@ -28,12 +34,15 @@ int** sous (int** a, int** b, int n) {
 
 
 int** product (int** a, int** b, int n) {
-    int** c = malloc(n*n*sizeof(int));
+    int** c = malloc(n*sizeof(int*));
+    for (int i = 0; i < n; i++) {
+        c[i] = malloc(n*sizeof(int));
+    }
     int z = 0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             for (int k = 0; k < n; k++) {
-                z = a[i][k] + b[k][j];
+                z += a[i][k] * b[k][j];
             }
             c[i][j] = z;
             z = 0;
@@ -45,7 +54,10 @@ int** strassen (int** a, int** b, int n) {
     if (n == 1) {
         return product (a, b, n);
     }
-    int** c = malloc(n*n*sizeof(int));
+    int** c = malloc(n*sizeof(int*));
+    for (int i = 0; i < n; i++) {
+        c[i] = malloc(n*sizeof(int));
+    }
     int** a1 = malloc(n*n*sizeof(int));
     int** a2 = malloc(n*n*sizeof(int));
     int** a3 = malloc(n*n*sizeof(int));
@@ -101,27 +113,6 @@ int** strassen (int** a, int** b, int n) {
             c[i+n/2][j+n/2] = c4[i][j];
         }
     }
-    for (int i = 0; i < n; i++) {
-            free(a1[i]);
-            free(a2[i]);
-            free(a3[i]);
-            free(a4[i]);
-            free(b1[i]);
-            free(b2[i]);
-            free(b3[i]);
-            free(b4[i]);
-            free(c1[i]);
-            free(c2[i]);
-            free(c3[i]);
-            free(c4[i]);
-            free(m1[i]);
-            free(m2[i]);
-            free(m3[i]);
-            free(m4[i]);
-            free(m5[i]);
-            free(m6[i]);
-            free(m7[i]);
-    }
     free(a1);
     free(a2);
     free(a3);
@@ -161,7 +152,11 @@ int main() {
         for (int j = 0; j < n; j++) {
             if (i == j) {
                 a[i][j] = 1;
-                a[i][j] = i*j;
+                b[i][j] = i*j;
+            }
+            else {
+                a[i][j] = 0;
+                b[i][j] = 0;
             }
         }
     }
