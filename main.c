@@ -11,7 +11,6 @@ int** add (int** a, int** b, int n) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             c[i][j] = a[i][j] + b[i][j];
-
         }
     }
     return c;
@@ -22,7 +21,6 @@ int** sous (int** a, int** b, int n) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             c[i][j] = a[i][j] - b[i][j];
-
         }
     }
     return c;
@@ -71,30 +69,7 @@ int** strassen (int** a, int** b, int n) {
         for (int j = 0; j < n; j++) {
             c[i][j] = 0;
         } 
-    }
-    for (int i = 0; i < n/2; i++) {
-        for (int j = 0; j < n/2; j++) {
-            a1[i][j] = 0;
-            a2[i][j] = 0;
-            a3[i][j] = 0;
-            a4[i][j] = 0;
-            b1[i][j] = 0;
-            b2[i][j] = 0;
-            b3[i][j] = 0;
-            b4[i][j] = 0;
-            c1[i][j] = 0;
-            c2[i][j] = 0;
-            c3[i][j] = 0;
-            c4[i][j] = 0;
-            m1[i][j] = 0;
-            m2[i][j] = 0;
-            m3[i][j] = 0;
-            m4[i][j] = 0;
-            m5[i][j] = 0;
-            m6[i][j] = 0;
-            m7[i][j] = 0;
-        }
-    }        
+    }      
     for (int i = 0; i < n/2; i++) {
         for (int j = 0; j < n/2; j++) {
             a1[i][j] = a[i][j];
@@ -105,41 +80,47 @@ int** strassen (int** a, int** b, int n) {
             b2[i][j] = b[i+n/2][j];
             b3[i][j] = b[i][j+n/2];
             b4[i][j] = b[i+n/2][j+n/2];
-            m1[i][j] = strassen (add(a1, a4, n/2) , add(b1, b4, n/2), n/2);
-            m2[i][j] = strassen (add(a2, a4, n/2), b1, n/2);
-            m3[i][j] = strassen (a1, sous (b3, b4, n/2), n/2);
-            m4[i][j] = strassen (a4, sous (b2, b1, n/2), n/2);
-            m5[i][j] = strassen (add (a1, a3, n/2), b4, n/2);
-            m6[i][j] = strassen  (sous (a2 ,a1, n/2), add (b1, b3, n/2), n/2);
-            m7[i][j] = strassen (sous (a3, a4, n/2), add (b2, b4, n/2), n/2);
-            c1[i][j] = sous (add (add (m1, m4, n/2), m7, n/2), m5, n/2);
-            c2[i][j] = add (m3, m5, n/2);
-            c3[i][j] = add (m2, m4, n/2);
-            c4[i][j] = sous (add (add (m1 ,m3, n/2), m6, n/2), m2, n/2);
+        }
+    }
+    m1 = strassen (add(a1, a4, n/2) , add(b1, b4, n/2), n/2);
+    m2 = strassen (add(a2, a4, n/2), b1, n/2);
+    m3 = strassen (a1, sous (b3, b4, n/2), n/2);
+    m4 = strassen (a4, sous (b2, b1, n/2), n/2);
+    m5 = strassen (add (a1, a3, n/2), b4, n/2);
+    m6 = strassen  (sous (a2 ,a1, n/2), add (b1, b3, n/2), n/2);
+    m7 = strassen (sous (a3, a4, n/2), add (b2, b4, n/2), n/2);
+    c1 = sous (add (add (m1, m4, n/2), m7, n/2), m5, n/2);
+    c2 = add (m3, m5, n/2);
+    c3 = add (m2, m4, n/2);
+    c4 = sous (add (add (m1 ,m3, n/2), m6, n/2), m2, n/2);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
             c[i][j] = c1[i][j];
             c[i+n/2][j] = c2[i][j];
             c[i][j+n/2] = c3[i][j];
             c[i+n/2][j+n/2] = c4[i][j];
-            free(a1[i][j]);
-            free(a2[i][j]);
-            free(a3[i][j]);
-            free(a4[i][j]);
-            free(b1[i][j]);
-            free(b2[i][j]);
-            free(b3[i][j]);
-            free(b4[i][j]);
-            free(c1[i][j]);
-            free(c2[i][j]);
-            free(c3[i][j]);
-            free(c4[i][j]);
-            free(m1[i][j]);
-            free(m2[i][j]);
-            free(m3[i][j]);
-            free(m4[i][j]);
-            free(m5[i][j]);
-            free(m6[i][j]);
-            free(m7[i][j]);
         }
+    }
+    for (int i = 0; i < n; i++) {
+            free(a1[i]);
+            free(a2[i]);
+            free(a3[i]);
+            free(a4[i]);
+            free(b1[i]);
+            free(b2[i]);
+            free(b3[i]);
+            free(b4[i]);
+            free(c1[i]);
+            free(c2[i]);
+            free(c3[i]);
+            free(c4[i]);
+            free(m1[i]);
+            free(m2[i]);
+            free(m3[i]);
+            free(m4[i]);
+            free(m5[i]);
+            free(m6[i]);
+            free(m7[i]);
     }
     free(a1);
     free(a2);
@@ -162,7 +143,7 @@ int** strassen (int** a, int** b, int n) {
     free(m7);
     return c;
 }
-void print_m(int** a, int n) {
+void print_m(int **a, int n) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             printf ("%d", a[i][j]);
@@ -171,11 +152,22 @@ void print_m(int** a, int n) {
     }
 }
 int main() {
-    int** a = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-    int** b = {{2, 1, 3}, {2, 4, 1}, {5, 2, 3}};
-    int** c = strassen(a, b, 3);
-    int** d = product(a, b, 3);
-    print_m(c, 3);
-    print_m(d, 3);
+    int n = 2;
+    int** a = malloc(n*n*sizeof(int));
+    int** b = malloc(n*n*sizeof(int));
+    // int** c = malloc(n*n*sizeof(int));
+    int** d = malloc(n*n*sizeof(int));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i == j) {
+                a[i][j] = 1;
+                a[i][j] = i*j;
+            }
+        }
+    }
+    // c = strassen(a, b, 2);
+    d = product(a, b, 2);
+    // print_m(c, 2);
+    print_m(d, 2);
     return 0;
 }
