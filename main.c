@@ -45,7 +45,7 @@ int** product (int** a, int** b, int n) {
 }
 int** strassen (int** a, int** b, int n) {
     if (n == 1) {
-        return product (a b);
+        return product (a, b, n);
     }
     int** c = malloc(n*n*sizeof(int));
     int** a1 = malloc(n*n*sizeof(int));
@@ -74,6 +74,29 @@ int** strassen (int** a, int** b, int n) {
     }
     for (int i = 0; i < n/2; i++) {
         for (int j = 0; j < n/2; j++) {
+            a1[i][j] = 0;
+            a2[i][j] = 0;
+            a3[i][j] = 0;
+            a4[i][j] = 0;
+            b1[i][j] = 0;
+            b2[i][j] = 0;
+            b3[i][j] = 0;
+            b4[i][j] = 0;
+            c1[i][j] = 0;
+            c2[i][j] = 0;
+            c3[i][j] = 0;
+            c4[i][j] = 0;
+            m1[i][j] = 0;
+            m2[i][j] = 0;
+            m3[i][j] = 0;
+            m4[i][j] = 0;
+            m5[i][j] = 0;
+            m6[i][j] = 0;
+            m7[i][j] = 0;
+        }
+    }        
+    for (int i = 0; i < n/2; i++) {
+        for (int j = 0; j < n/2; j++) {
             a1[i][j] = a[i][j];
             a2[i][j] = a[i+n/2][j];
             a3[i][j] = a[i][j+n/2];
@@ -82,11 +105,11 @@ int** strassen (int** a, int** b, int n) {
             b2[i][j] = b[i+n/2][j];
             b3[i][j] = b[i][j+n/2];
             b4[i][j] = b[i+n/2][j+n/2];
-            m1[i][j] = strassen (add(a1, a4, n/2) add(b1, b4, n/2), n/2);
+            m1[i][j] = strassen (add(a1, a4, n/2) , add(b1, b4, n/2), n/2);
             m2[i][j] = strassen (add(a2, a4, n/2), b1, n/2);
-            m3[i][j] = strassen (a1 ,sous (b3, b4, n/2), n/2);
+            m3[i][j] = strassen (a1, sous (b3, b4, n/2), n/2);
             m4[i][j] = strassen (a4, sous (b2, b1, n/2), n/2);
-            m5[i][j] = strassen (add (a1, a3, n/2) b4, n/2);
+            m5[i][j] = strassen (add (a1, a3, n/2), b4, n/2);
             m6[i][j] = strassen  (sous (a2 ,a1, n/2), add (b1, b3, n/2), n/2);
             m7[i][j] = strassen (sous (a3, a4, n/2), add (b2, b4, n/2), n/2);
             c1[i][j] = sous (add (add (m1, m4, n/2), m7, n/2), m5, n/2);
@@ -139,9 +162,20 @@ int** strassen (int** a, int** b, int n) {
     free(m7);
     return c;
 }
-
+void print_m(int** a, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            printf ("%d", a[i][j]);
+        }
+        printf("\n");
+    }
+}
 int main() {
-    
-
+    int** a = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    int** b = {{2, 1, 3}, {2, 4, 1}, {5, 2, 3}};
+    int** c = strassen(a, b, 3);
+    int** d = product(a, b, 3);
+    print_m(c, 3);
+    print_m(d, 3);
     return 0;
 }
