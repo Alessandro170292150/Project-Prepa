@@ -1,39 +1,62 @@
 type m = int array array
 
-let product (m1 : m) (m2 : m) : m =
-  let z = ref 0 in
-    let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
-    for i = 0 to (Array.length m1) - 1 do
-      for j = 0 to (Array.length m2) - 1 do
-        for k = 0 to (Array.length m2) - 1 do
-          z := !z + (m1.(i).(k))*(m2.(k).(j))
+
+module Mat = struct
+    let add (m1 : m) (m2 : m) : m =   
+      let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
+      let n = Array.length m1 in 
+      for i = 0 to (n - 1) do
+        for j = 0 to (n - 1) do
+          c.(i).(j) <- m1.(i).(j) + m2.(i).(j)
         done;
-        c.(i).(j) <- !z;
-        z := 0
       done;
-    done;
-  c
+      c
 
-let add (m1 : m) (m2 : m) : m = 
-  let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
-  let n = Array.length m1 in 
-  for i = 0 to (n - 1) do
-    for j = 0 to (n - 1) do
-      c.(i).(j) <- m1.(i).(j) + m2.(i).(j)
-    done;
-  done;
-  c
+    let sous (m1 : m) (m2 : m) : m = 
+      let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
+      let n = Array.length m1 in 
+      for i = 0 to (n - 1) do
+        for j = 0 to (n - 1) do
+          c.(i).(j) <- m1.(i).(j) - m2.(i).(j)
+        done;
+      done;
+      c
 
-let sous (m1 : m) (m2 : m) : m = 
-  let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
-  let n = Array.length m1 in 
-  for i = 0 to (n - 1) do
-    for j = 0 to (n - 1) do
-      c.(i).(j) <- m1.(i).(j) - m2.(i).(j)
-    done;
-  done;
-  c
-
+    let product (m1 : m) (m2 : m) : m =
+      let z = ref 0 in
+        let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
+        for i = 0 to (Array.length m1) - 1 do
+          for j = 0 to (Array.length m2) - 1 do
+            for k = 0 to (Array.length m2) - 1 do
+              z := !z + (m1.(i).(k))*(m2.(k).(j))
+            done;
+            c.(i).(j) <- !z;
+            z := 0
+          done;
+        done;
+      c
+    let abs (a : int) (b : int) = 
+      if a < b then b - a else a - b
+    let max (mat : m) : int = 
+      let p = Arrag.length m.(0) in
+      let man = ref mat.(0).(0) in
+      for i = 0 to (p - 1) do 
+        for j = 0 to (p - 1) do
+          if man < mat.(i).(j) then
+            man := mat.(i).(j)
+          done;
+        done;
+      man
+    let rando_m m1 =
+      let  =n Array.length m1.(0) in 
+      let a = Array.make_matrix n n 0 in 
+      for i = 0 to n-1 do 
+        for j = 0 to n-1 do
+          a.(i).(j) <- Random.int (max m1)
+        done;
+      done;
+    a
+    end
 
 
 let rec strassen (a : m) (b : m) : m  = 
@@ -92,6 +115,15 @@ let rec strassen (a : m) (b : m) : m  =
     done;
   done;
   c
+
+let approximation_inv (a : m) : m = 
+  let n = Array.length a.(0) in
+  let m1 = Mat.rando_m a in
+  for i = 0 to (n - 1) do 
+    let z = ref 0 in
+    for j = 0 to (n - 1) do
+      z := !z + Mat.abs (a.(i).(j)) (m1.(i).(j))
+      
 
 let print_m (a : m) : unit = 
   for i = 0 to (Array.length a) - 1 do
