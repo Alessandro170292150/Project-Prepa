@@ -48,5 +48,5 @@ def repartition (n, vmax):
 
 
 
-repartition(12, 2*10)
+repartition(12, 2*8)
 

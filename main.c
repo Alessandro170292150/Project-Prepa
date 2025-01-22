@@ -4,8 +4,8 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stddef.h>
-
-
+#include <time.h>
+#include <unistd.h>
 int** add (int** a, int** b, int n) {
     int** c = malloc(n*sizeof(int*));
     for (int i = 0; i < n; i++) {
@@ -51,7 +51,7 @@ int** product (int** a, int** b, int n) {
     return c;
 }
 
-int** strassen_p (int** a, int** b, int n) {
+int** strassen (int** a, int** b, int n) {
     if (n == 0) {
         return product (a, b, n);
     }
@@ -191,7 +191,7 @@ void print_m(int **a, int n) {
         printf("\n");
     }
 }
-int main() {
+int main(int argc, char * argv[]) {
     int n = 8;
     int** a = malloc(n*sizeof(int*));
     int** b = malloc(n*sizeof(int*));
@@ -215,8 +215,15 @@ int main() {
             }
         }
     }
+    time_t t1 = time(NULL);
     c = strassen(a, b, n);
+    time_t t2 = time(NULL);
     d = product(a, b, n);
+    time_t t3 = time(NULL);
+    unsigned long dt1 = (unsigned long) difftime(t1, t2);
+    unsigned long dt2 = (unsigned long) difftime(t2, t3);
+    printf("%ld pour le produit \n", dt1);
+    printf("%ld pour strassen \n", dt2);
     print_m(c, n);
     print_m(d, n);
     return 0;
