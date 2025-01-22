@@ -6,7 +6,7 @@
 #include <stddef.h>
 #include <time.h>
 #include <unistd.h>
-int** add (int** a, int** b, int n) {
+int** add(int** a, int** b, int n){
     int** c = malloc(n*sizeof(int*));
     for (int i = 0; i < n; i++) {
         c[i] = malloc(n*sizeof(int));
