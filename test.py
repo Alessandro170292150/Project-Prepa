@@ -20,3 +20,22 @@ ax.fill_between(x, y_est - y_err, y_est + y_err, alpha=0.2)
 ax.plot(x, y, 'o', color='tab:brown')
 
 plt.show()
+
+
+
+import numpy as np
+
+def regularized_inverse(A, lambda_reg=1e-6):
+    n = A.shape[0]
+    I = np.eye(n) 
+    A_reg = A + lambda_reg * I  
+    A_inv_reg = np.linalg.inv(A_reg)  
+    return A_inv_reg
+
+A = np.array([[4, 3], [6, 3]], dtype=float)
+A_inv_reg = regularized_inverse(A, lambda_reg=1e-6)
+
+print("Matrice A :")
+print(A)
+print("\nInverse régularisé de A :")
+print(A_inv_reg)
