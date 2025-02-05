@@ -22,9 +22,6 @@ ax.plot(x, y, 'o', color='tab:brown')
 plt.show()
 
 
-
-import numpy as np
-
 def regularized_inverse(A, lambda_reg=1e-6):
     n = A.shape[0]
     I = np.eye(n) 
