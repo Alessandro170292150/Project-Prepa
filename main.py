@@ -73,8 +73,6 @@ def repartition(n, vmax):
         time_dot[i] = avg_dot / nb_runs
         time_strassen[i] = avg_strassen / nb_runs
         print(f"2^{i} ({size}x{size}) -> dot: {time_dot[i]:.6f}s, strassen: {time_strassen[i]:.6f}s")
-
-    # Tracé
     fig, ax = plt.subplots()
     ax.plot(x, time_dot, '-o', label="np.dot (classique)")
     ax.plot(x, time_strassen, '-s', label="Strassen")

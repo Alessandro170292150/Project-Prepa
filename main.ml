@@ -24,10 +24,10 @@ module Mat = struct
 
     let product (m1 : m) (m2 : m) : m =
       let z = ref 0 in
-      let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
+      let c = Array.make_matrix (Array.length m1) (Array.length m1) 0 in
         for i = 0 to (Array.length m1) - 1 do
-          for j = 0 to (Array.length m2) - 1 do
-            for k = 0 to (Array.length m2) - 1 do
+          for j = 0 to (Array.length m1) - 1 do
+            for k = 0 to (Array.length m1) - 1 do
               z := !z + (m1.(i).(k))*(m2.(k).(j))
             done;
             c.(i).(j) <- !z;
@@ -56,65 +56,65 @@ module Mat = struct
         done;
       done;
     a
+
+    let pow (n : int) (k: int) = 
+      let res = ref 1 in
+      let i = ref k in
+      let m = ref n in
+      while (!i > 0) do
+        if !i mod 2 = 1 then res:= (!res) * (!m); 
+        m := (!m) * (!m);
+        i := ((!i)/2)
+      done;
+      !res
     end
 
+let rec strassen (a : m) (b : m) : m =
+  let n = Array.length a in
+  if n < 16 then Mat.product a b
+  else
+    let n2 = n / 2 in
 
-let rec strassen (a : m) (b : m) : m  = 
-  match (Array.length a) with
-  |1 -> (Mat.product a b)
-  |_ ->  let n = Array.length a in
-  let c = Array.make_matrix (Array.length a) (Array.length b) 0 in
-  let a1 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let a2 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let a3 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let a4 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let b2 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let b1 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let b3 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let b4 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let c1 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let c2 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let c3 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let c4 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let d1 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let d2 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let d3 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let d4 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let d5 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let d6 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  let d7 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
-  for i = 0 to (((Array.length a)/2) - 1) do
-    for j = 0 to (((Array.length a)/2) - 1) do 
-      a1.(i).(j) <- a.(i).(j);
-      a2.(i).(j) <- a.(i+ (Array.length b)/2).(j);
-      a3.(i).(j) <- a.(i).(j + (Array.length b)/2);
-      a4.(i).(j) <- a.(i+ (Array.length b)/2).(j + (Array.length b)/2);
-      b1.(i).(j) <- b.(i).(j);
-      b2.(i).(j) <- b.(i + (Array.length b)/2).(j);
-      b3.(i).(j) <- b.(i).(j + (Array.length b)/2);
-      b4.(i).(j) <- b.(i + (Array.length b)/2).(j + (Array.length b)/2)
+    let submatrix m row col =
+      Array.init n2 (fun i -> Array.init n2 (fun j -> m.(i + row).(j + col)))
+    in
+
+    let a11 = submatrix a 0 0
+    and a12 = submatrix a 0 n2
+    and a21 = submatrix a n2 0
+    and a22 = submatrix a n2 n2
+    and b11 = submatrix b 0 0
+    and b12 = submatrix b 0 n2
+    and b21 = submatrix b n2 0
+    and b22 = submatrix b n2 n2 in
+
+    (* Calcul des 7 produits de Strassen *)
+    let m1 = strassen (Mat.add a11 a22) (Mat.add b11 b22) in
+    let m2 = strassen (Mat.add a21 a22) b11 in
+    let m3 = strassen a11 (Mat.sous b12 b22) in
+    let m4 = strassen a22 (Mat.sous b21 b11) in
+    let m5 = strassen (Mat.add a11 a12) b22 in
+    let m6 = strassen (Mat.sous a21 a11) (Mat.add b11 b12) in
+    let m7 = strassen (Mat.sous a12 a22) (Mat.add b21 b22) in
+
+    (* Calcul des sous-blocs du résultat final *)
+    let c11 = Mat.sous (Mat.add (Mat.add m1 m4) m7) m5 in
+    let c12 = Mat.add m3 m5 in
+    let c21 = Mat.add m2 m4 in
+    let c22 = Mat.sous (Mat.add (Mat.add m1 m3) m6) m2 in
+
+    (* Assembler le résultat final *)
+    let c = Array.make_matrix n n 0 in
+    for i = 0 to n2 - 1 do
+      for j = 0 to n2 - 1 do
+        c.(i).(j) <- c11.(i).(j);
+        c.(i).(j + n2) <- c12.(i).(j);
+        c.(i + n2).(j) <- c21.(i).(j);
+        c.(i + n2).(j + n2) <- c22.(i).(j)
+      done
     done;
-  done;
-  for i = 0 to (n/2 - 1) do
-    for j = 0 to (n/2 - 1) do 
-      d1.(i).(j) <- (strassen (Mat.add a1 a4) (Mat.add b1 b4)).(i).(j);
-      d2.(i).(j) <- (strassen (Mat.add a2 a4) b1).(i).(j);
-      d3.(i).(j) <- (strassen a1 (Mat.sous b3 b4)).(i).(j);
-      d4.(i).(j) <- (strassen a4 (Mat.sous b2 b1)).(i).(j);
-      d5.(i).(j) <- (strassen (Mat.add a1 a3) b4).(i).(j);
-      d6.(i).(j) <- (strassen  (Mat.sous a2 a1) (Mat.add b1 b3)).(i).(j);
-      d7.(i).(j) <- (strassen (Mat.sous a3 a4) (Mat.add b2 b4)).(i).(j);
-      c1.(i).(j) <- (Mat.sous (Mat.add (Mat.add d1 d4) d7) d5).(i).(j);
-      c2.(i).(j) <- (Mat.add d3 d5).(i).(j);
-      c3.(i).(j) <- (Mat.add d2 d4).(i).(j);
-      c4.(i).(j) <- (Mat.sous (Mat.add (Mat.add d1 d3) d6) d2).(i).(j);
-      c.(i).(j) <- c1.(i).(j);
-      c.(n/2 + i).(j) <- c3.(i).(j);
-      c.(i).(n/2 + j) <- c2.(i).(j);
-      c.(n/2 + i).(n/2 + j) <- c4.(i).(j)
-    done;
-  done;
-  c
+    c
+
       
 
 let print_m (a : m) : unit = 
@@ -134,21 +134,22 @@ let print_m_s (a : m) : unit =
   done
 
 let () = 
-  let m1 = [|[|6;1;3; 5|]; [|3; 1; 0; 3|]; [|7; 0; 1; 5|]; [|2; 1; 5; 9|]|] in
-  let m2 = [|[|1; 3; 2; 3|];[|1; 0; 9; 8|]; [|0; 1; 2; 6|]; [|2; 1; 4; 5|]|] in
-  let c1 = strassen m1 m2 in
-  let c2 = Mat.product m1 m2 in
-  print_m c2;
+  let n = 512 in
+  (* let m1 = [|[|6;1;3; 5|]; [|3; 1; 0; 3|]; [|7; 0; 1; 5|]; [|2; 1; 5; 9|]|] in
+  let m2 = [|[|1; 3; 2; 3|];[|1; 0; 9; 8|]; [|0; 1; 2; 6|]; [|2; 1; 4; 5|]|] in *)
+  let m3 = Array.init n (fun i -> Array.init n (fun j -> if i < j+1 then 1 else 0)) in
+  let m4 = Array.init n (fun i -> Array.init n (fun j -> if i > j+1 then 1 else 0)) in 
+  let t1 = Sys.time() in
+  let c1 = strassen m3 m4 in
+  let t2 = Sys.time() in
+  let c2 = Mat.product m3 m4 in
+  let t3 = Sys.time() in
+  Printf.printf "strassen prend %.3f \n" (t2 -. t1);
+  Printf.printf "et le produit prend %.3f" (t3 -. t2);
+  (* print_m c2;
   Printf.printf "\n";
-  print_m c1;
+  print_m c1; *)
 
-  (* let m3 = Array.make_matrix 4 4 1 in
-  let m4 = Array.make_matrix 4 4 1 in
-  let c3 = product m3 m4 in
-  let c2 = strassen m3 m4 in 
-  print_m_s c3;
-  print_m_s c2 *)
-  
 
 
   
