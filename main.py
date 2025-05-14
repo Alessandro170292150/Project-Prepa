@@ -2,12 +2,24 @@ import numpy as np
 import time as t
 import matplotlib.pyplot as plt
 
+def product(t1, t2):
+    assert(t1 == [] or t2 == [])
+    n = len(t1[0])
+    z = 0
+    t3 = [[0 for i in range(n)] for j in range(n)]
+    for i in range(n):
+        for j in range(n):
+            for k in range(n):
+                z += t1[i][k]*t2[k][j]
+            t3[i][j] = z
+            z = 0
+    return t3
+
 def strassen(t1, t2):
     n = t1.shape[0]
     if n == 1:
         return t1 * t2
     if n % 2 != 0:
-        # Pad to make size even
         t1 = np.pad(t1, ((0,1),(0,1)), mode='constant')
         t2 = np.pad(t2, ((0,1),(0,1)), mode='constant')
         n += 1
@@ -32,13 +44,13 @@ def strassen(t1, t2):
     c[:n//2, n//2:] = m2 + m4
     c[n//2:, n//2:] = m1 + m3 + m6 - m2
 
-    return c[:t1.shape[0], :t2.shape[1]]  # Trim padding
+    return c[:t1.shape[0], :t2.shape[1]] 
 
 def repartition(n, vmax):
     x = np.arange(n)
     time_dot = np.zeros(n)
     time_strassen = np.zeros(n)
-    nb_runs = 3  # moyenne sur plusieurs exécutions
+    nb_runs = 3  
 
     for i in range(n):
         size = 2**i

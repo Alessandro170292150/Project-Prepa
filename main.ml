@@ -24,7 +24,7 @@ module Mat = struct
 
     let product (m1 : m) (m2 : m) : m =
       let z = ref 0 in
-        let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
+      let c = Array.make_matrix (Array.length m1) (Array.length m2) 0 in
         for i = 0 to (Array.length m1) - 1 do
           for j = 0 to (Array.length m2) - 1 do
             for k = 0 to (Array.length m2) - 1 do
@@ -38,17 +38,17 @@ module Mat = struct
     let abs (a : int) (b : int) = 
       if a < b then b - a else a - b
     let max (mat : m) : int = 
-      let p = Arrag.length m.(0) in
+      let p = Array.length mat.(0) in
       let man = ref mat.(0).(0) in
       for i = 0 to (p - 1) do 
         for j = 0 to (p - 1) do
-          if man < mat.(i).(j) then
+          if !man < mat.(i).(j) then
             man := mat.(i).(j)
           done;
         done;
-      man
+      !man
     let rando_m m1 =
-      let  =n Array.length m1.(0) in 
+      let n = Array.length m1.(0) in 
       let a = Array.make_matrix n n 0 in 
       for i = 0 to n-1 do 
         for j = 0 to n-1 do
@@ -61,7 +61,7 @@ module Mat = struct
 
 let rec strassen (a : m) (b : m) : m  = 
   match (Array.length a) with
-  |1 -> product a b
+  |1 -> (Mat.product a b)
   |_ ->  let n = Array.length a in
   let c = Array.make_matrix (Array.length a) (Array.length b) 0 in
   let a1 = Array.make_matrix ((Array.length a)/2) ((Array.length a)/2) 0 in
@@ -97,17 +97,17 @@ let rec strassen (a : m) (b : m) : m  =
   done;
   for i = 0 to (n/2 - 1) do
     for j = 0 to (n/2 - 1) do 
-      d1.(i).(j) <- (strassen (add a1 a4) (add b1 b4)).(i).(j);
-      d2.(i).(j) <- (strassen (add a2 a4) b1).(i).(j);
-      d3.(i).(j) <- (strassen a1 (sous b3 b4)).(i).(j);
-      d4.(i).(j) <- (strassen a4 (sous b2 b1)).(i).(j);
-      d5.(i).(j) <- (strassen (add a1 a3) b4).(i).(j);
-      d6.(i).(j) <- (strassen  (sous a2 a1) (add b1 b3)).(i).(j);
-      d7.(i).(j) <- (strassen (sous a3 a4) (add b2 b4)).(i).(j);
-      c1.(i).(j) <- (sous (add (add d1 d4) d7) d5).(i).(j);
-      c2.(i).(j) <- (add d3 d5).(i).(j);
-      c3.(i).(j) <- (add d2 d4).(i).(j);
-      c4.(i).(j) <- (sous (add (add d1 d3) d6) d2).(i).(j);
+      d1.(i).(j) <- (strassen (Mat.add a1 a4) (Mat.add b1 b4)).(i).(j);
+      d2.(i).(j) <- (strassen (Mat.add a2 a4) b1).(i).(j);
+      d3.(i).(j) <- (strassen a1 (Mat.sous b3 b4)).(i).(j);
+      d4.(i).(j) <- (strassen a4 (Mat.sous b2 b1)).(i).(j);
+      d5.(i).(j) <- (strassen (Mat.add a1 a3) b4).(i).(j);
+      d6.(i).(j) <- (strassen  (Mat.sous a2 a1) (Mat.add b1 b3)).(i).(j);
+      d7.(i).(j) <- (strassen (Mat.sous a3 a4) (Mat.add b2 b4)).(i).(j);
+      c1.(i).(j) <- (Mat.sous (Mat.add (Mat.add d1 d4) d7) d5).(i).(j);
+      c2.(i).(j) <- (Mat.add d3 d5).(i).(j);
+      c3.(i).(j) <- (Mat.add d2 d4).(i).(j);
+      c4.(i).(j) <- (Mat.sous (Mat.add (Mat.add d1 d3) d6) d2).(i).(j);
       c.(i).(j) <- c1.(i).(j);
       c.(n/2 + i).(j) <- c3.(i).(j);
       c.(i).(n/2 + j) <- c2.(i).(j);
@@ -115,14 +115,6 @@ let rec strassen (a : m) (b : m) : m  =
     done;
   done;
   c
-
-let approximation_inv (a : m) : m = 
-  let n = Array.length a.(0) in
-  let m1 = Mat.rando_m a in
-  for i = 0 to (n - 1) do 
-    let z = ref 0 in
-    for j = 0 to (n - 1) do
-      z := !z + Mat.abs (a.(i).(j)) (m1.(i).(j))
       
 
 let print_m (a : m) : unit = 
@@ -145,10 +137,11 @@ let () =
   let m1 = [|[|6;1;3; 5|]; [|3; 1; 0; 3|]; [|7; 0; 1; 5|]; [|2; 1; 5; 9|]|] in
   let m2 = [|[|1; 3; 2; 3|];[|1; 0; 9; 8|]; [|0; 1; 2; 6|]; [|2; 1; 4; 5|]|] in
   let c1 = strassen m1 m2 in
-  let c2 = product m1 m2 in
+  let c2 = Mat.product m1 m2 in
   print_m c2;
   Printf.printf "\n";
-  print_m c1
+  print_m c1;
+
   (* let m3 = Array.make_matrix 4 4 1 in
   let m4 = Array.make_matrix 4 4 1 in
   let c3 = product m3 m4 in
