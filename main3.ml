@@ -1,4 +1,5 @@
 open Bigarray
+open Domain
 
 type m = (float, float64_elt, c_layout) Array2.t
 
@@ -48,6 +49,17 @@ let product (a : m) (b : m) : m =
   done;
   c
 
+let pow (n : int) (k: int) = 
+      let res = ref 1 in
+      let i = ref k in
+      let m = ref n in
+      while (!i > 0) do
+        if !i mod 2 = 1 then res:= (!res) * (!m); 
+        m := (!m) * (!m);
+        i := ((!i)/2)
+      done;
+      !res
+
 let submatrix (a : m) row col size : m =
   let m = create_matrix size in
   for i = 0 to size - 1 do
@@ -71,7 +83,8 @@ let combine c11 c12 c21 c22 : m =
   done;
   c
 
-let rec strassen (a : m) (b : m) : m =
+
+let rec strassen ?(depth=0) (a : m) (b : m) : m =
   let n = Array2.dim1 a in
   if n <= 32 then product a b
   else
@@ -85,20 +98,45 @@ let rec strassen (a : m) (b : m) : m =
     and b21 = submatrix b n2 0 n2
     and b22 = submatrix b n2 n2 n2 in
 
-    let m1 = strassen (add a11 a22) (add b11 b22) in
-    let m2 = strassen (add a21 a22) b11 in
-    let m3 = strassen a11 (sous b12 b22) in
-    let m4 = strassen a22 (sous b21 b11) in
-    let m5 = strassen (add a11 a12) b22 in
-    let m6 = strassen (sous a21 a11) (add b11 b12) in
-    let m7 = strassen (sous a12 a22) (add b21 b22) in
+    if depth = 0 then
+      let t1 = spawn (fun () -> strassen ~depth:1 (add a11 a22) (add b11 b22)) in
+      let t2 = spawn (fun () -> strassen ~depth:1 (add a21 a22) b11) in
+      let t3 = spawn (fun () -> strassen ~depth:1 a11 (sous b12 b22)) in
+      let t4 = spawn (fun () -> strassen ~depth:1 a22 (sous b21 b11)) in
+      let t5 = spawn (fun () -> strassen ~depth:1 (add a11 a12) b22) in
+      let t6 = spawn (fun () -> strassen ~depth:1 (sous a21 a11) (add b11 b12)) in
+      let t7 = spawn (fun () -> strassen ~depth:1 (sous a12 a22) (add b21 b22)) in
 
-    let c11 = sous (add (add m1 m4) m7) m5 in
-    let c12 = add m3 m5 in
-    let c21 = add m2 m4 in
-    let c22 = sous (add (add m1 m3) m6) m2 in
+      let m1 = join t1
+      and m2 = join t2
+      and m3 = join t3
+      and m4 = join t4
+      and m5 = join t5
+      and m6 = join t6
+      and m7 = join t7 in
 
-    combine c11 c12 c21 c22
+      let c11 = sous (add (add m1 m4) m7) m5 in
+      let c12 = add m3 m5 in
+      let c21 = add m2 m4 in
+      let c22 = sous (add (add m1 m3) m6) m2 in
+      combine c11 c12 c21 c22
+
+    else
+      let m1 = strassen ~depth:(depth+1) (add a11 a22) (add b11 b22) in
+      let m2 = strassen ~depth:(depth+1) (add a21 a22) b11 in
+      let m3 = strassen ~depth:(depth+1) a11 (sous b12 b22) in
+      let m4 = strassen ~depth:(depth+1) a22 (sous b21 b11) in
+      let m5 = strassen ~depth:(depth+1) (add a11 a12) b22 in
+      let m6 = strassen ~depth:(depth+1) (sous a21 a11) (add b11 b12) in
+      let m7 = strassen ~depth:(depth+1) (sous a12 a22) (add b21 b22) in
+
+      let c11 = sous (add (add m1 m4) m7) m5 in
+      let c12 = add m3 m5 in
+      let c21 = add m2 m4 in
+      let c22 = sous (add (add m1 m3) m6) m2 in
+      combine c11 c12 c21 c22
+
+
 
 let print_m (a : m) : unit =
   let n = Array2.dim1 a in
@@ -110,15 +148,18 @@ let print_m (a : m) : unit =
   done
 
 let () =
-  let n = 256 in
-  let m1 = init_matrix n (fun i j -> if i < j + 1 then 1.0 else 0.0) in
-  let m2 = init_matrix n (fun i j -> if i > j + 1 then 1.0 else 0.0) in
+  let i = 12 in
+  let n = pow 2 i in
+  for k = 0 to (i-2) do 
+    let m1 = init_matrix (pow 2 k) (fun i j -> if i < j + 1 then 1. else 0.) in
+    let m2 = init_matrix  (pow 2 k) (fun i j -> if i > j + 1 then 1. else 0.) in
+    let t1 = Sys.time () in
+    let c1 = strassen m1 m2 in
+    let t2 = Sys.time () in
+    let c2 = product m1 m2 in
+    let t3 = Sys.time () in
+    Printf.printf "Strassen time : %.3fs\n" (t2 -. t1);
+    Printf.printf "Naive time    : %.3fs\n" (t3 -. t2)
+  done
 
-  let t1 = Sys.time () in
-  let c1 = strassen m1 m2 in
-  let t2 = Sys.time () in
-  let c2 = product m1 m2 in
-  let t3 = Sys.time () in
 
-  Printf.printf "Strassen time : %.3fs\n" (t2 -. t1);
-  Printf.printf "Naive time    : %.3fs\n" (t3 -. t2);

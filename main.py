@@ -17,34 +17,45 @@ def product(t1, t2):
 
 def strassen(t1, t2):
     n = t1.shape[0]
-    if n == 1:
-        return t1 * t2
+    if n < 32:
+        return np.dot(t1, t2)
     if n % 2 != 0:
         t1 = np.pad(t1, ((0,1),(0,1)), mode='constant')
         t2 = np.pad(t2, ((0,1),(0,1)), mode='constant')
         n += 1
 
-    c = np.zeros((n, n), dtype=int)
+    elif not (n & (n - 1)) == 0:
+        # On pad pour obtenir la prochaine puissance de 2
+        m = 1 << (n - 1).bit_length()
+        t1 = np.pad(t1, ((0, m - n), (0, m - n)), mode='constant')
+        t2 = np.pad(t2, ((0, m - n), (0, m - n)), mode='constant')
+        n = m
 
-    a1, a2 = t1[:n//2, :n//2], t1[:n//2, n//2:]
-    a3, a4 = t1[n//2:, :n//2], t1[n//2:, n//2:]
-    b1, b2 = t2[:n//2, :n//2], t2[:n//2, n//2:]
-    b3, b4 = t2[n//2:, :n//2], t2[n//2:, n//2:]
+    # Découpage en sous-matrices
+    a11, a12 = np.split(t1[:n//2, :], 2, axis=1)
+    a21, a22 = np.split(t1[n//2:, :], 2, axis=1)
+    b11, b12 = np.split(t2[:n//2, :], 2, axis=1)
+    b21, b22 = np.split(t2[n//2:, :], 2, axis=1)
 
-    m1 = strassen(a1 + a4, b1 + b4)
-    m2 = strassen(a2 + a4, b1)
-    m3 = strassen(a1, b3 - b4)
-    m4 = strassen(a4, b2 - b1)
-    m5 = strassen(a1 + a3, b4)
-    m6 = strassen(a2 - a1, b1 + b3)
-    m7 = strassen(a3 - a4, b2 + b4)
+    # Calcul des 7 produits de Strassen
+    m1 = strassen(a11 + a22, b11 + b22)
+    m2 = strassen(a21 + a22, b11)
+    m3 = strassen(a11, b12 - b22)
+    m4 = strassen(a22, b21 - b11)
+    m5 = strassen(a11 + a12, b22)
+    m6 = strassen(a21 - a11, b11 + b12)
+    m7 = strassen(a12 - a22, b21 + b22)
 
-    c[:n//2, :n//2] = m1 + m4 + m7 - m5
-    c[n//2:, :n//2] = m3 + m5
-    c[:n//2, n//2:] = m2 + m4
-    c[n//2:, n//2:] = m1 + m3 + m6 - m2
+    c11 = m1 + m4 - m5 + m7
+    c12 = m3 + m5
+    c21 = m2 + m4
+    c22 = m1 - m2 + m3 + m6
 
-    return c[:t1.shape[0], :t2.shape[1]] 
+    top = np.hstack((c11, c12))
+    bottom = np.hstack((c21, c22))
+    result = np.vstack((top, bottom))
+
+    return result[:t1.shape[0], :t2.shape[1]]
 
 def repartition(n, vmax):
     x = np.arange(n)
@@ -83,4 +94,4 @@ def repartition(n, vmax):
     ax.grid(True)
     plt.show()
 
-repartition(13, 16)
+repartition(10, 16)

@@ -71,7 +71,7 @@ module Mat = struct
 
 let rec strassen (a : m) (b : m) : m =
   let n = Array.length a in
-  if n < 16 then Mat.product a b
+  if n < 32 then Mat.product a b
   else
     let n2 = n / 2 in
 
@@ -88,7 +88,6 @@ let rec strassen (a : m) (b : m) : m =
     and b21 = submatrix b n2 0
     and b22 = submatrix b n2 n2 in
 
-    (* Calcul des 7 produits de Strassen *)
     let m1 = strassen (Mat.add a11 a22) (Mat.add b11 b22) in
     let m2 = strassen (Mat.add a21 a22) b11 in
     let m3 = strassen a11 (Mat.sous b12 b22) in
@@ -97,13 +96,11 @@ let rec strassen (a : m) (b : m) : m =
     let m6 = strassen (Mat.sous a21 a11) (Mat.add b11 b12) in
     let m7 = strassen (Mat.sous a12 a22) (Mat.add b21 b22) in
 
-    (* Calcul des sous-blocs du résultat final *)
     let c11 = Mat.sous (Mat.add (Mat.add m1 m4) m7) m5 in
     let c12 = Mat.add m3 m5 in
     let c21 = Mat.add m2 m4 in
     let c22 = Mat.sous (Mat.add (Mat.add m1 m3) m6) m2 in
 
-    (* Assembler le résultat final *)
     let c = Array.make_matrix n n 0 in
     for i = 0 to n2 - 1 do
       for j = 0 to n2 - 1 do
@@ -134,7 +131,7 @@ let print_m_s (a : m) : unit =
   done
 
 let () = 
-  let n = 512 in
+  let n = 1024 in
   (* let m1 = [|[|6;1;3; 5|]; [|3; 1; 0; 3|]; [|7; 0; 1; 5|]; [|2; 1; 5; 9|]|] in
   let m2 = [|[|1; 3; 2; 3|];[|1; 0; 9; 8|]; [|0; 1; 2; 6|]; [|2; 1; 4; 5|]|] in *)
   let m3 = Array.init n (fun i -> Array.init n (fun j -> if i < j+1 then 1 else 0)) in

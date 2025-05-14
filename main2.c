@@ -251,13 +251,11 @@ int main() {
     }
 
     fclose(data);
-    // 3. Appel de gnuplot
     FILE *gnuplot = popen("gnuplot -persistent", "w");
     if (!gnuplot) {
         perror("Erreur lors de l'ouverture de gnuplot");
         return 1;
     }
-            // Commande gnuplot : tracer à partir du fichier
     fprintf(gnuplot, "set title 'Temps de calcul : Strassen vs produit classique'\n");
     fprintf(gnuplot, "set xlabel 'Taille de la matrice (n)'\n");
     fprintf(gnuplot, "set ylabel 'Temps (ms)'\n");
