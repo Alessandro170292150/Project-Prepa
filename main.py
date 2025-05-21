@@ -1,6 +1,7 @@
 import numpy as np
 import time as t
 import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 
 def product(t1, t2):
     assert(t1 == [] or t2 == [])
@@ -15,9 +16,19 @@ def product(t1, t2):
             z = 0
     return t3
 
+def inversion(t, iter):
+    id = [[1 if i == j else 0 for j in range(t.shape[0])] for i in range(t.shape[0]) ]
+    r = id + t
+    sum = id
+    r_pow = r
+    for _ in range(iter):
+        r_pow *= r
+        sum += r_pow
+    return sum
+
 def strassen(t1, t2):
     n = t1.shape[0]
-    if n < 32:
+    if n <= 32:
         return np.dot(t1, t2)
     if n % 2 != 0:
         t1 = np.pad(t1, ((0,1),(0,1)), mode='constant')
@@ -25,19 +36,16 @@ def strassen(t1, t2):
         n += 1
 
     elif not (n & (n - 1)) == 0:
-        # On pad pour obtenir la prochaine puissance de 2
         m = 1 << (n - 1).bit_length()
         t1 = np.pad(t1, ((0, m - n), (0, m - n)), mode='constant')
         t2 = np.pad(t2, ((0, m - n), (0, m - n)), mode='constant')
         n = m
 
-    # Découpage en sous-matrices
     a11, a12 = np.split(t1[:n//2, :], 2, axis=1)
     a21, a22 = np.split(t1[n//2:, :], 2, axis=1)
     b11, b12 = np.split(t2[:n//2, :], 2, axis=1)
     b21, b22 = np.split(t2[n//2:, :], 2, axis=1)
 
-    # Calcul des 7 produits de Strassen
     m1 = strassen(a11 + a22, b11 + b22)
     m2 = strassen(a21 + a22, b11)
     m3 = strassen(a11, b12 - b22)
@@ -61,8 +69,7 @@ def repartition(n, vmax):
     x = np.arange(n)
     time_dot = np.zeros(n)
     time_strassen = np.zeros(n)
-    nb_runs = 3  
-
+    nb_runs = 1
     for i in range(n):
         size = 2**i
         avg_dot = 0
@@ -71,15 +78,15 @@ def repartition(n, vmax):
             m = np.random.randint(-vmax, vmax, size=(size, size))
             p = np.random.randint(-vmax, vmax, size=(size, size))
 
-            t1 = t.time()
+            t1 = t.perf_counter()
             np.dot(m, p)
-            t2 = t.time()
-            avg_dot += (t2 - t1)
+            t2 = t.perf_counter()
+            avg_dot += t2 - t1
 
-            t3 = t.time()
+            t3 = t.perf_counter()
             strassen(m, p)
-            t4 = t.time()
-            avg_strassen += (t4 - t3)
+            t4 = t.perf_counter()
+            avg_strassen += t4 - t3
 
         time_dot[i] = avg_dot / nb_runs
         time_strassen[i] = avg_strassen / nb_runs
@@ -89,9 +96,11 @@ def repartition(n, vmax):
     ax.plot(x, time_strassen, '-s', label="Strassen")
     ax.set_xlabel("Puissance (2^n)")
     ax.set_ylabel("Temps (secondes)")
+    ax.set_yscale('log')
+    ax.yaxis.set_major_formatter(ScalarFormatter())
     ax.set_title("Temps de calcul: Strassen vs produit classique")
     ax.legend()
     ax.grid(True)
     plt.show()
 
-repartition(10, 16)
+repartition(12, 16)
