@@ -219,7 +219,7 @@ int fast_pow(int base, int exponent) {
     return result;
 }
 int main() {
-    int n = 11;
+    int n = 15;
     int *val = malloc(n*sizeof(int));
     for (int i = 0; i < n; i++) {
         val[i] = i;

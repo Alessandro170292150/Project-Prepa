@@ -69,7 +69,7 @@ def repartition(n, vmax):
     x = np.arange(n)
     time_dot = np.zeros(n)
     time_strassen = np.zeros(n)
-    nb_runs = 1
+    nb_runs = 10
     for i in range(n):
         size = 2**i
         avg_dot = 0
@@ -103,4 +103,4 @@ def repartition(n, vmax):
     ax.grid(True)
     plt.show()
 
-repartition(12, 16)
+repartition(15, 16)
