@@ -219,7 +219,7 @@ int fast_pow(int base, int exponent) {
     return result;
 }
 int main() {
-    int n = 15;
+    int n = 11;
     int *val = malloc(n*sizeof(int));
     for (int i = 0; i < n; i++) {
         val[i] = i;
@@ -245,7 +245,7 @@ int main() {
         long seconds = end.tv_sec - start.tv_sec;
         long nanoseconds = end.tv_nsec - start.tv_nsec;
         double elapsed_ms_strassen = seconds * 1000.0 + nanoseconds / 1e6;
-        printf("%f\n", elapsed_ms_strassen);
+        printf("Strassen time : %f\n", elapsed_ms_strassen);
         time_strassen[i] = log(elapsed_ms_strassen);
     
         // Mesure du temps pour produit classique
@@ -255,7 +255,7 @@ int main() {
         seconds = end.tv_sec - start.tv_sec;
         nanoseconds = end.tv_nsec - start.tv_nsec;
         double elapsed_ms_product = seconds * 1000.0 + nanoseconds / 1e6;
-        printf("%f\n", elapsed_ms_product);
+        printf("Product time : %f\n", elapsed_ms_product);
         time_product[i] = log(elapsed_ms_product);
         free_matrix(size, a);
         free_matrix(size, b);
