@@ -148,18 +148,22 @@ let print_m (a : m) : unit =
   done
 
 let () =
+  let oc = open_out "times.dat" in
   let i = 12 in
-  let n = pow 2 i in
   for k = 0 to i do 
-    let m1 = init_matrix (pow 2 k) (fun i j -> if i < j + 1 then 1. else 0.) in
-    let m2 = init_matrix  (pow 2 k) (fun i j -> if i > j + 1 then 1. else 0.) in
+    let size = pow 2 k in
+    let m1 = init_matrix size (fun i j -> if i < j + 1 then 1. else 0.) in
+    let m2 = init_matrix size (fun i j -> if i > j + 1 then 1. else 0.) in
     let t1 = Sys.time () in
-    let c1 = strassen m1 m2 in
+    let _ = strassen m1 m2 in
     let t2 = Sys.time () in
-    let c2 = product m1 m2 in
+    let _ = product m1 m2 in
     let t3 = Sys.time () in
-    Printf.printf "Strassen time : %.3fs\n" (t2 -. t1);
-    Printf.printf "Naive time    : %.3fs\n" (t3 -. t2)
-  done
+    let strassen_time = t2 -. t1 in
+    let naive_time = t3 -. t2 in
+    Printf.fprintf oc "%d %.6f %.6f\n" size strassen_time naive_time;
+  done;
+  close_out oc;
+  ignore (Sys.command "gnuplot -p plot.gnu"); 
 
 

@@ -130,7 +130,6 @@ void strassen(int n, int **a, int **b, int **c) {
         }
     }
 
-    // Parallélisation des appels récursifs
     #pragma omp parallel
     #pragma omp single
     {
@@ -247,8 +246,7 @@ int main() {
         double elapsed_ms_strassen = seconds * 1000.0 + nanoseconds / 1e6;
         printf("Strassen time : %f\n", elapsed_ms_strassen);
         time_strassen[i] = log(elapsed_ms_strassen);
-    
-        // Mesure du temps pour produit classique
+
         clock_gettime(CLOCK_MONOTONIC, &start);
         product(fast_pow(2, i), a, b, d);
         clock_gettime(CLOCK_MONOTONIC, &end);
